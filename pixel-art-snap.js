@@ -47,7 +47,7 @@ async function loadPixels(filePath) {
   return { raw, width, height };
 }
 
-// Step 1: Detect grid size via autocorrelation of edge signal
+// Step 1: Detect grid size via autocorrelation with improved snapping
 function detectGridSize(raw, width, height) {
   const gray = new Float64Array(width * height);
   for (let y = 0; y < height; y++) {
@@ -57,6 +57,7 @@ function detectGridSize(raw, width, height) {
     }
   }
 
+  // Aggregated edge signals
   const hEdge = new Float64Array(width);
   for (let x = 1; x < width; x++) {
     let sum = 0;
@@ -84,6 +85,7 @@ function detectGridSize(raw, width, height) {
     const acorr = new Float64Array(maxLag + 1);
     let norm = 0;
     for (let i = 0; i < n; i++) norm += (signal[i] - mean) ** 2;
+    if (norm === 0) return 16;
 
     for (let lag = 0; lag <= maxLag; lag++) {
       let sum = 0;
@@ -93,6 +95,9 @@ function detectGridSize(raw, width, height) {
       acorr[lag] = sum / norm;
     }
 
+    // "Past first dip" heuristic: find the first strong peak after the
+    // autocorrelation starts rising. This finds the fundamental period,
+    // not harmonics.
     let pastFirstDip = false;
     let bestLag = 16;
     let bestVal = -Infinity;
@@ -106,29 +111,52 @@ function detectGridSize(raw, width, height) {
       }
       if (acorr[lag] < bestVal - 0.01) break;
     }
-    return { period: bestLag, acorr };
+    return bestLag;
   }
 
-  const hResult = findPeriod(hEdge, 40);
-  const vResult = findPeriod(vEdge, 40);
+  const hPeriod = findPeriod(hEdge, 40);
+  const vPeriod = findPeriod(vEdge, 40);
+  console.log(`  Horizontal period: ${hPeriod}`);
+  console.log(`  Vertical period: ${vPeriod}`);
 
-  console.log(`  Horizontal period: ${hResult.period}`);
-  console.log(`  Vertical period: ${vResult.period}`);
+  const avgPeriod = (hPeriod + vPeriod) / 2;
 
-  const avgPeriod = (hResult.period + vResult.period) / 2;
-  const candidates = [4, 8, 16, 20, 32];
-  let gridSize = candidates.reduce((best, c) =>
-    Math.abs(c - avgPeriod) < Math.abs(best - avgPeriod) ? c : best
-  );
+  // Expanded candidate list
+  const candidates = [4, 6, 8, 10, 12, 16, 20, 24, 32];
 
+  // Fixed snapping: score all candidates, prefer larger on ties
+  let bestCandidate = candidates[0];
+  let bestScore = Infinity;
   for (const c of candidates) {
-    if (Math.abs(c - avgPeriod) < 3 && width % c === 0 && height % c === 0) {
-      gridSize = c;
-      break;
+    const dist = Math.abs(c - avgPeriod);
+    // Subtract tiny epsilon * c so larger candidates win on ties
+    const score = dist - 0.001 * c;
+    if (score < bestScore) {
+      bestScore = score;
+      bestCandidate = c;
     }
   }
 
-  return gridSize;
+  // Second pass: among candidates close to avgPeriod that evenly divide the image,
+  // pick the closest one (prefer larger on ties). Don't break early.
+  let bestDivisible = null;
+  let bestDivScore = Infinity;
+  for (const c of candidates) {
+    const dist = Math.abs(c - avgPeriod);
+    if (dist < 3 && width % c === 0 && height % c === 0) {
+      const score = dist - 0.001 * c;
+      if (score < bestDivScore) {
+        bestDivScore = score;
+        bestDivisible = c;
+      }
+    }
+  }
+  if (bestDivisible !== null) {
+    bestCandidate = bestDivisible;
+  }
+
+  console.log(`  => Snapped ${avgPeriod} to grid: ${bestCandidate}`);
+  return bestCandidate;
 }
 
 // Step 2: Find grid offset (phase) that minimizes intra-cell variance
