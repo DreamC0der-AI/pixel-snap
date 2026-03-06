@@ -2,7 +2,7 @@
 name: pixel-snap
 description: "Convert upscaled pixel art images back to clean, sharp pixel art. Detects grid size, extracts true pixel colors, and outputs crisp results. Supports icon mode (remove background, crop, center) and scene mode (preserve full image)."
 disable-model-invocation: true
-argument-hint: [input-file] [options]
+argument-hint: "[input-file] [options]"
 ---
 
 # Pixel Art Snap
