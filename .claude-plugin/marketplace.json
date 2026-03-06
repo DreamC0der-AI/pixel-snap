@@ -1,0 +1,13 @@
+{
+  "name": "dreamcoder-tools",
+  "owner": {
+    "name": "DreamC0der-AI"
+  },
+  "plugins": [
+    {
+      "name": "pixel-snap",
+      "source": "./",
+      "description": "Convert upscaled pixel art images back to clean, sharp pixel art"
+    }
+  ]
+}
