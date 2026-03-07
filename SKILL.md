@@ -11,18 +11,18 @@ Convert upscaled/blurry pixel art images back to clean, sharp pixel art.
 
 ## Script Location
 
-The script is at: `${CLAUDE_PLUGIN_ROOT}/pixel-art-snap.js`
+The script is at: `${CLAUDE_SKILL_DIR}/pixel-art-snap.js`
 
 It requires the `sharp` npm package. If not installed, run:
 ```
-cd ${CLAUDE_PLUGIN_ROOT} && npm install sharp
+cd ${CLAUDE_SKILL_DIR} && npm install sharp
 ```
 
 ## Usage
 
 Run the script with:
 ```
-node ${CLAUDE_PLUGIN_ROOT}/pixel-art-snap.js [input] [output] [options]
+node ${CLAUDE_SKILL_DIR}/pixel-art-snap.js [input] [output] [options]
 ```
 
 ### Arguments from user
@@ -50,11 +50,11 @@ The user's arguments: $ARGUMENTS
 
 ```bash
 # Basic usage
-node ${CLAUDE_PLUGIN_ROOT}/pixel-art-snap.js ~/images/sprite.png
+node ${CLAUDE_SKILL_DIR}/pixel-art-snap.js ~/images/sprite.png
 
 # Specify output and size
-node ${CLAUDE_PLUGIN_ROOT}/pixel-art-snap.js input.png output.png --size=512
+node ${CLAUDE_SKILL_DIR}/pixel-art-snap.js input.png output.png --size=512
 
 # Force icon mode with custom grid
-node ${CLAUDE_PLUGIN_ROOT}/pixel-art-snap.js sprite.png --mode=icon --grid=16
+node ${CLAUDE_SKILL_DIR}/pixel-art-snap.js sprite.png --mode=icon --grid=16
 ```
