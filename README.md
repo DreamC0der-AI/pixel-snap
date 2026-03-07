@@ -1,6 +1,6 @@
 # pixel-snap
 
-A Claude Code plugin that converts upscaled pixel art images back to clean, sharp pixel art.
+A Claude Code skill that converts upscaled pixel art images back to clean, sharp pixel art.
 
 ## What it does
 
@@ -11,9 +11,11 @@ A Claude Code plugin that converts upscaled pixel art images back to clean, shar
 
 ## Install
 
+Clone into your Claude Code skills directory:
+
 ```shell
-/plugin marketplace add DreamC0der-AI/pixel-snap
-/plugin install pixel-snap@dreamcoder-tools
+git clone https://github.com/DreamC0der-AI/pixel-snap.git ~/.claude/skills/pixel-snap
+cd ~/.claude/skills/pixel-snap && npm install
 ```
 
 ## Usage
